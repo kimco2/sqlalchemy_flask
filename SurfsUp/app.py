@@ -34,10 +34,17 @@ app = Flask(__name__)
 def welcome():
     """List all available api routes."""
     return (
+        f"Welcome to this climate api for Hawaii<br/>"
+        f"<br/>"
+        f"Please note, when enterting any start and end dates please use the format ddmmYYYY<br/>"
+        f"<br/>"
         f"Available Routes:<br/>"
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
+        f"<br/>"
+        f"If you would like to search the tempature by dates please use the below routes.<br/>"
+        f"Please use the format ddmmYYYY when entering any start or end dates<br/>"
         f"/api/v1.0/start<br/>"
         f"/api/v1.0/start/end"
     )
@@ -58,8 +65,8 @@ def precipitation():
     precipitation_dictionary = {}
     for item in precipitation_results:
         key = item[0]
-        val = item[1]
-        precipitation_dictionary[key] = val
+        value = item[1]
+        precipitation_dictionary[key] = value
     
     return jsonify(precipitation_dictionary)
 
@@ -105,67 +112,149 @@ def tobs():
 
 
 #-------------------------------------------------
-#Route: dynamic_start
-from datetime import datetime
-# @app.route("/api/v1.0/<start_date>")
-@app.route("/api/v1.0/<start>")
-def start(start):
-    try:
-        start = datetime.strptime(start, "%m%d%Y")
-    except ValueError:
-        raise ValueError("{'start'} is not in the required date format mmddYYYY")
+# #Route: dynamic_start
+# from datetime import datetime
+# # @app.route("/api/v1.0/<start_date>")
+# @app.route("/api/v1.0/<start>")
+# def start(start):
+#     try:
+#         start = datetime.strptime(start, "%m%d%Y")
+#     except ValueError:
+#         raise ValueError("{'start'} is not in the required date format mmddYYYY")
   
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
+#     # Create our session (link) from Python to the DB
+#     session = Session(engine)
 
-    sel = [func.min(Measurement.tobs),
-    func.max(Measurement.tobs),
-    func.avg(Measurement.tobs)]
+#     sel = [func.min(Measurement.tobs),
+#     func.max(Measurement.tobs),
+#     func.avg(Measurement.tobs)]
     
-    # Query the data to find min, max and average, filtering by the start date provided
-    start_data = session.query(*sel).\
-        filter((Measurement.date) >= (start)).all()
-    session.close()
+#     # Query the data to find min, max and average, filtering by the start date provided
+#     start_data = session.query(*sel).\
+#         filter((Measurement.date) >= (start)).all()
+#     session.close()
 
-    start_list = list(np.ravel(start_data))
+#     start_list = list(np.ravel(start_data))
 
-    return jsonify(start_list)
+#     return jsonify(start_list)
+
+# @app.route("/api/v1.0/<start>")
+# @app.route("/api/v1.0/<start>/<end>")
+# def date_items(start='01012010', end='02022017'):
 
 
 #-------------------------------------------------
 # Route: dynamic start and end date
+# from datetime import datetime
+
+# @app.route("/api/v1.0/<start>")
+# @app.route("/api/v1.0/<start>/<end>")
+# def date_items(start=None, end=None):
+#     try:
+#         start = datetime.strptime(start, "%d%m%Y")
+#         end = datetime.strptime(end, "%d%m%Y")
+#     except ValueError:
+#         raise ValueError("{'start'} is not in the required date format mmddYYYY")
+#         raise ValueError("{'end'} is not in the required date format mmddYYYY")
+     
+#     # Create our session (link) from Python to the DB
+#     session = Session(engine)
+
+#     sel = [func.min(Measurement.tobs),
+#     func.avg(Measurement.tobs),
+#     func.max(Measurement.tobs)]
+   
+#     temp_stats = session.query(*sel).\
+#         filter((Measurement.date) >= (start)).\
+#         filter((Measurement.date) <= (end)).all()
+#     session.close()
+
+#     # convert list of tuples into a normal list
+#     temp_stats_list = list(np.ravel(temp_stats))
+
+#     for x in temp_stats_list:
+#         temp_stats_dict = {}
+#         temp_stats_dict["Temp_minimum"] = temp_stats_list[0]
+#         temp_stats_dict["Temp_average"] = temp_stats_list[1]
+#         temp_stats_dict["Temp_maximum"] = temp_stats_list[2]
+
+#     return jsonify(temp_stats_dict)
+
+
+
+#-------------------------------------------------
+# Route: dynamic start and end date
+from datetime import datetime
 
 @app.route("/api/v1.0/<start>")
 @app.route("/api/v1.0/<start>/<end>")
-def date_items(start, end='02022017'):
+def date_items(start=None, end=None):
+    if not end:
+        start = datetime.strptime(start, "%d%m%Y")
+        # Create our session (link) from Python to the DB
+        session = Session(engine)
+
+        sel = [func.min(Measurement.tobs),
+        func.avg(Measurement.tobs),
+        func.max(Measurement.tobs)]
+
+        temp_stats = session.query(*sel).\
+            filter((Measurement.date) >= (start)).all()
+        session.close()
+
+    if end:
+        start = datetime.strptime(start, "%d%m%Y")
+        end = datetime.strptime(end, "%d%m%Y")
+         
+        # Create our session (link) from Python to the DB
+        session = Session(engine)
+
+        sel = [func.min(Measurement.tobs),
+        func.avg(Measurement.tobs),
+        func.max(Measurement.tobs)]
+    
+        temp_stats = session.query(*sel).\
+            filter((Measurement.date) >= (start)).\
+            filter((Measurement.date) <= (end)).all()
+        session.close()
+
+    # convert list of tuples into a normal list
+    temp_stats_list = list(np.ravel(temp_stats))
+
+    for x in temp_stats_list:
+        temp_stats_dict = {}
+        temp_stats_dict["Temp_minimum"] = temp_stats_list[0]
+        temp_stats_dict["Temp_average"] = temp_stats_list[1]
+        temp_stats_dict["Temp_maximum"] = temp_stats_list[2]
+
+    return jsonify(temp_stats_dict)
 
 
-
-#----------------------------------------
-#Route: dynamic start and end date
-from datetime import datetime
-@app.route("/api/v1.0/<start>/<end>")
-def end(end):
-    try:
-        end = datetime.strptime(end, "%m%d%Y")
-    except ValueError:
-        raise ValueError("{'end'} is not in the required date format mmddYYY")
+# #----------------------------------------
+# #Route: dynamic start and end date
+# from datetime import datetime
+# @app.route("/api/v1.0/<start>/<end>")
+# def end(end):
+#     try:
+#         end = datetime.strptime(end, "%m%d%Y")
+#     except ValueError:
+#         raise ValueError("{'end'} is not in the required date format mmddYYY")
   
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
+#     # Create our session (link) from Python to the DB
+#     session = Session(engine)
 
-    sel = [func.min(Measurement.tobs),
-    func.max(Measurement.tobs),
-    func.avg(Measurement.tobs)]
+#     sel = [func.min(Measurement.tobs),
+#     func.max(Measurement.tobs),
+#     func.avg(Measurement.tobs)]
    
-    end = session.query(*sel).\
-        filter((Measurement.date) >= (start)).\
-        filter((Measurement.date) <= (end)).all()
-    session.close()
+#     end = session.query(*sel).\
+#         filter((Measurement.date) >= (start)).\
+#         filter((Measurement.date) <= (end)).all()
+#     session.close()
 
-    end_list = list(np.ravel(end))
+#     end_list = list(np.ravel(end))
 
-    return jsonify(end_list)
+#     return jsonify(end_list)
 
 
 if __name__ == '__main__':
