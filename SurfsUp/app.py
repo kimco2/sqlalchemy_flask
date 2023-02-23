@@ -74,9 +74,9 @@ def precipitation():
     # Save output to a dictionary
     precipitation_dictionary = {}
     for item in precipitation_results:
-        key = item[0]
-        value = item[1]
-        precipitation_dictionary[key] = value
+        date = item[0]
+        prcp = item[1]
+        precipitation_dictionary[date] = prcp
     
     return jsonify(precipitation_dictionary)
 
