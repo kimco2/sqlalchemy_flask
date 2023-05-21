@@ -1,11 +1,32 @@
-# sqlalchemy-challenge
+# Using SQLAlchemy and Flask
 
-### Hello, in this repository you will find a folder called 'SurfsUp' which contains:
+ ### **Overview**
+Using SQL Alchemy explore and analyse climate data from the climate database and Flask to build an app based off the queries.
 
-- **'Climate_analysis.ipynb** - the analysis undertaken on the climate data
-- **'app.py'** - the code for the climate app
-- The folder **'Resources'** contains the data files used for this project.
 
-Thanks
+### **Aspects Covered**
+- Using SQLAlchemy to connect to the SQLite database
+- Linking python to the database by creating a SQLAlchemy session
+- Querying the database to answer specific questions.
+- Charting with matplotlib
+- Developing a Flask API with different routes based off the earlier queries
 
-Kim
+### **Visualisations**
+![flask_api](flask_api.png)
+
+
+### **Folder structure**
+The folder *SurfsUp contains:
+- *Climate_analysis.ipynb* - analysis undertaken on the climate data
+- *app.py* - code for the climate app
+
+The folder *Resources* contains the data files used for this project.
+
+<br>
+
+---
+
+### **Contact**
+Email: kymcoleman@gmail.com
+
+---
